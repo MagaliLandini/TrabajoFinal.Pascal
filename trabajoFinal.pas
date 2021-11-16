@@ -10,6 +10,7 @@ type
 //     codigoPostal:Integer;
 //     end;
 T_estancia=record
+    ID_Estancia : integer;
     nombreEstancia:string;
     apellNomDueno:String;
     Dni:Integer;
@@ -58,8 +59,10 @@ archivo=file of T_estancia;
 
 procedure incializarRegistro(registroE:T_estancia);
 begin
+    contadorEstancias := contadorEstancias + 1;
       with registroE do 
       begin
+        ID_Estancia:= contadorEstancias;
         nombreEstancia:=' ';
         apellNomDueno:=' ';
         Dni:=0;
@@ -88,7 +91,7 @@ begin
       WriteLn('ingrese su domicilio');
       //CargarRegistroDomicilio(registroD);  //ver si es asi como se usa registro de registro 
       ReadLn(domicilio);
-      WriteLn('ingrese un numero de ocntacto');
+      WriteLn('ingrese un numero de contacto');
       ReadLn(numeroContacto);
       WriteLn('ingrese su email');
       ReadLn(email);
@@ -142,11 +145,25 @@ while (opcion <> 'n') do
     end;
 
 end;
+
 procedure baja(var estancia:T_estancia; var archiv:archivo; posicion:integer);
 begin
-  estancia.alta:=False;
-  seek(archiv,posicion);
-  Write(archiv,estancia);
+var opcion:char;
+begin
+WriteLn('¿desea dar de baja una estancia?');
+ReadLn(opcion);
+  if (opcion <> 'n') then
+  begin
+    if (estancia.alta) then
+    begin
+    estancia.alta:=False;
+    seek(archiv,posicion);
+    Write(archiv,estancia);        
+    end
+  else
+  WriteLn('La estancia ingresada ya fue dada de baja');
+  end;
+end;
 end;
 
 procedure mostrarEstancia (var estanciaE: T_estancia; var archiv:archivo);
@@ -171,8 +188,10 @@ begin
 end;
 
 
-var estancia:T_estancia; 
+var 
+estancia:T_estancia; 
 archivo1:archivo;
+contadorEstancias : integer;
 //domicilio:T_domicilio;
 begin
   Assign(archivo1,'./archivo1.dat');
