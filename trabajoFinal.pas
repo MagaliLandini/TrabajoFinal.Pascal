@@ -57,7 +57,7 @@ archivo=file of T_estancia;
 //     end;
 // end;
 
-procedure incializarRegistro(registroE:T_estancia);
+procedure incializarRegistro(var registroE:T_estancia; var contadorEstancias : integer);
 begin
     contadorEstancias := contadorEstancias + 1;
       with registroE do 
@@ -147,8 +147,8 @@ while (opcion <> 'n') do
 end;
 
 procedure baja(var estancia:T_estancia; var archiv:archivo; posicion:integer);
-begin
-var opcion:char;
+var 
+opcion : char;
 begin
 WriteLn('¿desea dar de baja una estancia?');
 ReadLn(opcion);
@@ -164,7 +164,7 @@ ReadLn(opcion);
   WriteLn('La estancia ingresada ya fue dada de baja');
   end;
 end;
-end;
+
 
 procedure mostrarEstancia (var estanciaE: T_estancia; var archiv:archivo);
 var posicion:integer;
@@ -198,7 +198,7 @@ begin
   Reset(archivo1);
   //Seek(archivo1,0);
   // read(archivo1,estancia);
-  incializarRegistro(estancia);
+  incializarRegistro(estancia, contadorEstancias);
   altaEstancia(estancia,archivo1);
   mostrarEstancia(estancia,archivo1);
   // Write(archivo1,estancia);
