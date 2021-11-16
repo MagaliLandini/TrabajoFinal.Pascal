@@ -1,5 +1,5 @@
 Program trabajofinal;
-Uses Crt;
+//le borré el Uses crt porque en mi compu siempre me da error (ni idea por qué)
 type
 // T_domicilio=record
 //     calle:String;
@@ -10,7 +10,7 @@ type
 //     codigoPostal:Integer;
 //     end;
 T_estancia=record
-    nombreEstacia:string;
+    nombreEstancia:string;
     apellNomDueno:String;
     Dni:Integer;
     domicilio:String;
@@ -60,7 +60,7 @@ procedure incializarRegistro(registroE:T_estancia);
 begin
       with registroE do 
       begin
-        nombreEstacia:=' ';
+        nombreEstancia:=' ';
         apellNomDueno:=' ';
         Dni:=0;
         domicilio:= ' '; //incializarRegistroDomicilio(registroD); // se pude inicializar asi?
@@ -69,9 +69,9 @@ begin
         caracteristicas:='';
         tienePiscina:='';
         capacidadMaxima:=0;
-        alta:=True;
+        alta:=true;
         
-          end;
+      end;
 end;
 procedure CargarRegistroEstancia (var registroE:T_estancia);
 
@@ -80,7 +80,7 @@ begin
   with registroE do
     begin
       WriteLn('ingrese el nombre de la estancia');
-      ReadLn(nombreEstacia);
+      ReadLn(nombreEstancia);
       WriteLn('ingrese el apellido y nombre del dueño ');
       ReadLn(apellNomDueno);
       WriteLn('ingrese el DNI');
@@ -98,12 +98,36 @@ begin
       ReadLn(tienePiscina);
       WriteLn('capacidad maxima de la estancia');
       ReadLn(capacidadMaxima);
-   
-    
-
-            
+      alta := true;            
     end;
 end;
+
+procedure mostrarRegistro (estanciaE : T_estancia);
+begin
+  with estanciaE do
+    begin
+      WriteLn('nombre de la estancia');
+      writeln(nombreEstancia);
+      WriteLn('apellido y nombre del dueño ');
+      writeln(apellNomDueno);
+      WriteLn('el DNI');
+      writeln(Dni);
+      WriteLn('domicilio');
+      //CargarRegistroDomicilio(registroD);  //ver si es asi como se usa registro de registro 
+      writeln(domicilio);
+      WriteLn('numero de contacto');
+      writeln(numeroContacto);
+      WriteLn('email');
+      writeln(email);
+      WriteLn('características de la estancia');
+      writeln(caracteristicas);
+      WriteLn('¿tiene piscina?');
+      writeln(tienePiscina);
+      WriteLn('capacidad maxima de la estancia');
+      writeln(capacidadMaxima);
+    end;
+end;
+
 procedure altaEstancia (var registroE:T_estancia; var archiv: archivo);
 var opcion:char;
 begin
@@ -118,7 +142,7 @@ while (opcion <> 'n') do
     end;
 
 end;
-procedure baja(var estancia:T_estancia; var archiv:archivo;  posicion:integer);
+procedure baja(var estancia:T_estancia; var archiv:archivo; posicion:integer);
 begin
   estancia.alta:=False;
   seek(archiv,posicion);
@@ -128,20 +152,22 @@ end;
 procedure mostrarEstancia (var estanciaE: T_estancia; var archiv:archivo);
 var posicion:integer;
 begin
-WriteLn('¿ingrese la posicion de la estancia?');
+WriteLn('ingrese la posicion de la estancia');
 read(posicion);
   seek(archiv,posicion);
   read(archiv,estanciaE);
+  writeln('Estancia alta: ', estanciaE.alta);
   if (estanciaE.alta) then
-   Write(estanciaE.nombreEstacia)
+  mostrarRegistro(estanciaE)
     else
      WriteLn('la estancia no existe');
-    
-
 end;
+
+
+
 procedure listado (var registroE:T_estancia);
 begin
-  WriteLn(registroE.nombreEstacia);
+  WriteLn(registroE.nombreEstancia);
 end;
 
 
@@ -149,9 +175,9 @@ var estancia:T_estancia;
 archivo1:archivo;
 //domicilio:T_domicilio;
 begin
-  Assign(archivo1,'D:\Documentos\Sistema\fundamentos de programacion\tp final\archivo1.dat');
+  Assign(archivo1,'./archivo1.dat');
   Reset(archivo1);
-  Seek(archivo1,0);
+  //Seek(archivo1,0);
   // read(archivo1,estancia);
   incializarRegistro(estancia);
   altaEstancia(estancia,archivo1);
