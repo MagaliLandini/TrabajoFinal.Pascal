@@ -131,6 +131,23 @@ begin
     end;
 end;
 
+function Posicion( N:String; var archiv:archivo):Integer;
+var registro:T_estancia;
+encontrado:Boolean;
+begin
+  encontrado:=false;
+  seek(archiv,0);
+  while not Eof(archiv) and not encontrado do 
+  begin
+    read(archiv,registro);
+    encontrado:= registro.nombreEstancia=N
+    end;
+  if encontrado then 
+  Posicion:= FilePos(archiv) -1
+  else
+  Posicion:=-1;
+end;
+
 procedure altaEstancia (var registroE:T_estancia; var archiv: archivo);
 var opcion:char;
 begin
@@ -146,18 +163,26 @@ while (opcion <> 'n') do
 
 end;
 
-procedure baja(var estancia:T_estancia; var archiv:archivo; posicion:integer);
+procedure baja(var estancia:T_estancia; var archiv:archivo; nombreE:String);
 var 
 opcion : char;
+i:Integer;
 begin
+i:= Posicion(nombreE,archiv);
+
 WriteLn('¿desea dar de baja una estancia?');
 ReadLn(opcion);
   if (opcion <> 'n') then
   begin
+  WriteLn('entro');
+  seek(archiv,i);
+    Read(archiv,estancia);
+    WriteLn(estancia.nombreEstancia);
     if (estancia.alta) then
     begin
     estancia.alta:=False;
-    seek(archiv,posicion);
+    // seek(archiv,i);
+    // Read(archiv,estancia);
     Write(archiv,estancia);        
     end
   else
@@ -188,19 +213,66 @@ begin
 end;
 
 
+procedure modificarEstancia(var archiv:archivo);
+var E:String;
+I:integer;
+estancia:T_estancia;
+begin
+  WriteLn('instroduzca el nombre de la estancia que desea modificar');
+  ReadLn(E);
+  I:= Posicion (E,archiv);
+  if I=-1 then
+    WriteLn('no esxiste la estancia buscada')
+    else
+    seek(archiv,I);
+    Read(archiv,estancia);
+    if estancia.alta then // aca se utiliza un boleano para modificarlo, podemos ver si usamos el mismo o si generamos otro.
+    begin
+    WriteLn('introduzca nuevos datos de la estancia');
+    CargarRegistroEstancia(estancia);
+    I:= FilePos (archiv) -1;
+    seek(archiv,I);
+    Write(archiv,estancia);
+    WriteLn('el registro ha sido modificado');
+    end
+    else
+    WriteLn('el registro fue dado de baja');
+
+end;
+
+procedure consultar(var archiv:archivo);
+var 
+estancia:T_estancia;
+N:String;
+i:Integer;
+begin
+  WriteLn('que estancia desea consultar? ingrese su nombre');
+  Read(N);
+  i:= Posicion(N,archiv);
+  if i= -1 then
+    WriteLn('no existe la estancia que esta buscando')
+    else
+    seek(archiv,i);
+    read(archiv,estancia);
+    mostrarEstancia(estancia,archiv);
+end;
 var 
 estancia:T_estancia; 
 archivo1:archivo;
 contadorEstancias : integer;
+nombreEst:String;
 //domicilio:T_domicilio;
 begin
-  Assign(archivo1,'./archivo1.dat');
+  Assign(archivo1,'D:\Documentos\Sistema\fundamentos de programacion\tp final\TrabajoFinal.Pascal-main/archivo1.dat');
   Reset(archivo1);
   //Seek(archivo1,0);
   // read(archivo1,estancia);
   incializarRegistro(estancia, contadorEstancias);
   altaEstancia(estancia,archivo1);
   mostrarEstancia(estancia,archivo1);
+  WriteLn('ingrese el nombre de la estancia que desea dar de baja');
+  ReadLn(nombreEst);
+  baja(estancia,archivo1,nombreEst);
   // Write(archivo1,estancia);
  
   //WriteLn('estancia', estancia.nombreEstacia);
