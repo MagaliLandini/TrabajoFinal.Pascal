@@ -300,7 +300,7 @@ begin
   Readln(nombreEst);
   //Posición de la estancia a dar de baja
   posicionEstancia := Posicion(nombreEst, archivo1);
-  //Muesta la posición (PRUEBA)
+  //Muesta la posición (PRUEBA) (por ahora sólo me devuelve -1)
   WriteLn('Posición de la estancia buscada: ', posicionEstancia);
   //SÓLO SI la estancia fue encontada, se llama al procedimiento baja
   if (posicionEstancia <> -1) then
