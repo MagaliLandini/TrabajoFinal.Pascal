@@ -1,20 +1,13 @@
 Program trabajofinal;
-//le borré el Uses crt porque en mi compu siempre me da error (ni idea por qué)
+
 type
-// T_domicilio=record
-//     calle:String;
-//     numero:Integer;
-//     piso:Integer;
-//     ciudad:String;
-//     cod_provincia:String;
-//     codigoPostal:Integer;
-//     end;
 T_estancia=record
     ID_Estancia : integer;
     nombreEstancia:string;
     apellNomDueno:String;
     Dni:Integer;
     domicilio:String;
+    cod_provincia: string;
     numeroContacto:Integer;
     email:String;
     caracteristicas:String;
@@ -66,7 +59,8 @@ begin
         nombreEstancia:=' ';
         apellNomDueno:=' ';
         Dni:=0;
-        domicilio:= ' '; //incializarRegistroDomicilio(registroD); // se pude inicializar asi?
+        domicilio:= ' '; 
+        cod_provincia:= ' ';
         numeroContacto:=0;
         email:='';
         caracteristicas:='';
@@ -89,8 +83,9 @@ begin
       WriteLn('ingrese el DNI');
       ReadLn(Dni);
       WriteLn('ingrese su domicilio');
-      //CargarRegistroDomicilio(registroD);  //ver si es asi como se usa registro de registro 
       ReadLn(domicilio);
+      WriteLn('Ingrese el código de provincia');
+      ReadLn(cod_provincia);
       WriteLn('ingrese un numero de contacto');
       ReadLn(numeroContacto);
       WriteLn('ingrese su email');
@@ -116,7 +111,8 @@ begin
       WriteLn('el DNI');
       writeln(Dni);
       WriteLn('domicilio');
-      //CargarRegistroDomicilio(registroD);  //ver si es asi como se usa registro de registro 
+      Writeln('Código de provincia:');
+      WriteLn(cod_provincia);
       writeln(domicilio);
       WriteLn('numero de contacto');
       writeln(numeroContacto);
@@ -132,16 +128,33 @@ begin
 end;
 
 function Posicion( N:String; var archiv:archivo):Integer;
-var registro:T_estancia;
+var 
+registro:T_estancia;
 encontrado:Boolean;
+posicionArchivo : integer;
+
 begin
+  //Inicialización de variables
   encontrado:=false;
-  seek(archiv,0);
+  posicionArchivo := 0;
+  
+  //Ciclo mientras NO sea el final del archivo y NO se haya encontrado
   while not Eof(archiv) and not encontrado do 
   begin
+    //Posicionamiento en el archivo
+    seek(archiv, posicionArchivo);
+    
+    //Lectura de la variable
     read(archiv,registro);
-    encontrado:= registro.nombreEstancia=N
-    end;
+
+    //Comprobación: el nombreEstancia es igual al nombre ingresado?
+    if registro.nombreEstancia = N then
+      encontrado:= true
+    else 
+      //Actualización para la próxima iteración
+      posicionArchivo := posicionArchivo + 1;
+  end;
+
   if encontrado then 
   Posicion:= FilePos(archiv) -1
   else
@@ -163,30 +176,35 @@ while (opcion <> 'n') do
 
 end;
 
-procedure baja(var estancia:T_estancia; var archiv:archivo; nombreE:String);
+procedure baja(var archiv:archivo; var estancia : T_estancia; posicionEstancia : integer);
 var 
 opcion : char;
-i:Integer;
 begin
-i:= Posicion(nombreE,archiv);
+
 
 WriteLn('¿desea dar de baja una estancia?');
 ReadLn(opcion);
   if (opcion <> 'n') then
   begin
-  WriteLn('entro');
-  seek(archiv,i);
+    
+    //Se posiciona en la estancia
+    seek(archiv,posicionEstancia);
+    //Lee la estancia
     Read(archiv,estancia);
-    WriteLn(estancia.nombreEstancia);
+    //Escribe el nombre a modo de prueba
+    WriteLn('Se eliminará la estancia ', estancia.nombreEstancia);
+    
+    //Si la estancia está activa
     if (estancia.alta) then
     begin
+    //La da de baja
     estancia.alta:=False;
-    // seek(archiv,i);
-    // Read(archiv,estancia);
+    //Escribe el archivo para guardar los cambios
     Write(archiv,estancia);        
     end
   else
-  WriteLn('La estancia ingresada ya fue dada de baja');
+  //Si la estancia ya estaba inactiva, avisa al usuario
+  WriteLn('La estancia ingresada ya había sido dada de baja');
   end;
 end;
 
@@ -194,8 +212,8 @@ end;
 procedure mostrarEstancia (var estanciaE: T_estancia; var archiv:archivo);
 var posicion:integer;
 begin
-WriteLn('ingrese la posicion de la estancia');
-read(posicion);
+WriteLn('ingrese la posicion de la estancia a mostrar');
+readln(posicion);
   seek(archiv,posicion);
   read(archiv,estanciaE);
   writeln('Estancia alta: ', estanciaE.alta);
@@ -256,23 +274,41 @@ begin
     read(archiv,estancia);
     mostrarEstancia(estancia,archiv);
 end;
+
+
+
+
+
 var 
 estancia:T_estancia; 
 archivo1:archivo;
-contadorEstancias : integer;
+contadorEstancias, posicionEstancia : integer;
 nombreEst:String;
-//domicilio:T_domicilio;
+
 begin
-  Assign(archivo1,'D:\Documentos\Sistema\fundamentos de programacion\tp final\TrabajoFinal.Pascal-main/archivo1.dat');
+  Assign(archivo1,'./archivo1.dat');
   Reset(archivo1);
   //Seek(archivo1,0);
   // read(archivo1,estancia);
   incializarRegistro(estancia, contadorEstancias);
   altaEstancia(estancia,archivo1);
   mostrarEstancia(estancia,archivo1);
-  WriteLn('ingrese el nombre de la estancia que desea dar de baja');
-  ReadLn(nombreEst);
-  baja(estancia,archivo1,nombreEst);
+  
+  //PRUEBA BAJA
+  //Qué estancia se dará de baja?
+  WriteLn('ingrese el nombre de la estancia que desea dar de baja: ');
+  Readln(nombreEst);
+  //Posición de la estancia a dar de baja
+  posicionEstancia := Posicion(nombreEst, archivo1);
+  //Muesta la posición (PRUEBA)
+  WriteLn('Posición de la estancia buscada: ', posicionEstancia);
+  //SÓLO SI la estancia fue encontada, se llama al procedimiento baja
+  if (posicionEstancia <> -1) then
+    baja(archivo1, estancia, posicionEstancia);
+
+
+
+
   // Write(archivo1,estancia);
  
   //WriteLn('estancia', estancia.nombreEstacia);
