@@ -50,12 +50,12 @@ archivo=file of T_estancia;
 //     end;
 // end;
 
-procedure incializarRegistro(var registroE:T_estancia; var contadorEstancias : integer);
+procedure incializarRegistro(var registroE:T_estancia);
 begin
-    contadorEstancias := contadorEstancias + 1;
+    //contadorEstancias := contadorEstancias + 1;var contadorEstancias : integer
       with registroE do 
       begin
-        ID_Estancia:= contadorEstancias;
+        //ID_Estancia:= contadorEstancias;
         nombreEstancia:=' ';
         apellNomDueno:=' ';
         Dni:=0;
@@ -124,6 +124,8 @@ begin
       writeln(tienePiscina);
       WriteLn('capacidad maxima de la estancia');
       writeln(capacidadMaxima);
+      WriteLn('alta');
+      writeln(alta);
     end;
 end;
 
@@ -137,7 +139,7 @@ begin
   //Inicialización de variables
   encontrado:=false;
   posicionArchivo := 0;
-  
+  seek(archiv, posicionArchivo);
   //Ciclo mientras NO sea el final del archivo y NO se haya encontrado
   while not Eof(archiv) and not encontrado do 
   begin
@@ -154,22 +156,32 @@ begin
       //Actualización para la próxima iteración
       posicionArchivo := posicionArchivo + 1;
   end;
-
+WriteLn('encontrado ', encontrado );
+WriteLn('posicion archivo ',posicionArchivo );
   if encontrado then 
-  Posicion:= FilePos(archiv) -1
+  Posicion:=posicionArchivo
   else
   Posicion:=-1;
 end;
 
 procedure altaEstancia (var registroE:T_estancia; var archiv: archivo);
 var opcion:char;
+i:Integer;
 begin
 WriteLn('¿desea cargar una estancia?');
 ReadLn(opcion);
 while (opcion <> 'n') do
   begin
+  //contadorEstancias := contadorEstancias + 1 el filesize cumple esta funcion
+  WriteLn('ingrese los datos de la estancia');
   CargarRegistroEstancia(registroE);
-  Write(archiv,registroE);
+  i:=Posicion(registroE.nombreEstancia,archiv);
+  if i= -1 then
+  begin
+    i:= FileSize(archiv); // nos da el tamaño del archivo
+    seek (archiv,i);
+    Write(archiv,registroE)
+  end;
   WriteLn('¿desea cargar una estancia?');
   ReadLn(opcion);
     end;
@@ -181,18 +193,17 @@ var
 opcion : char;
 begin
 
-
 WriteLn('¿desea dar de baja una estancia?');
 ReadLn(opcion);
-  if (opcion <> 'n') then
+  if (Upcase(opcion) <> 'N') then
   begin
-    
+   
     //Se posiciona en la estancia
     seek(archiv,posicionEstancia);
     //Lee la estancia
     Read(archiv,estancia);
     //Escribe el nombre a modo de prueba
-    WriteLn('Se eliminará la estancia ', estancia.nombreEstancia);
+    WriteLn('Se elimino la estancia ', estancia.nombreEstancia);
     
     //Si la estancia está activa
     if (estancia.alta) then
@@ -200,6 +211,7 @@ ReadLn(opcion);
     //La da de baja
     estancia.alta:=False;
     //Escribe el archivo para guardar los cambios
+    seek(archiv,posicionEstancia);//faltaba agregarle el seek para que se posicione y lo borre
     Write(archiv,estancia);        
     end
   else
@@ -209,12 +221,14 @@ ReadLn(opcion);
 end;
 
 
-procedure mostrarEstancia (var estanciaE: T_estancia; var archiv:archivo);
-var posicion:integer;
+procedure ConsultarEstancia (var estanciaE: T_estancia; var archiv:archivo);
+var i:integer;
+ n:String;
 begin
-WriteLn('ingrese la posicion de la estancia a mostrar');
-readln(posicion);
-  seek(archiv,posicion);
+WriteLn('ingrese el nombre de la estancia que desea consultar');
+readln(n);
+i:= Posicion(n,archiv);
+  seek(archiv,i);
   read(archiv,estanciaE);
   writeln('Estancia alta: ', estanciaE.alta);
   if (estanciaE.alta) then
@@ -242,38 +256,40 @@ begin
   if I=-1 then
     WriteLn('no esxiste la estancia buscada')
     else
-    seek(archiv,I);
-    Read(archiv,estancia);
-    if estancia.alta then // aca se utiliza un boleano para modificarlo, podemos ver si usamos el mismo o si generamos otro.
     begin
-    WriteLn('introduzca nuevos datos de la estancia');
-    CargarRegistroEstancia(estancia);
-    I:= FilePos (archiv) -1;
-    seek(archiv,I);
-    Write(archiv,estancia);
-    WriteLn('el registro ha sido modificado');
-    end
-    else
-    WriteLn('el registro fue dado de baja');
+      seek(archiv,I);
+      Read(archiv,estancia);
+      if estancia.alta then // aca se utiliza un boleano para modificarlo, podemos ver si usamos el mismo o si generamos otro.
+        begin
+        WriteLn('introduzca nuevos datos de la estancia');
+        CargarRegistroEstancia(estancia);
+        I:= FilePos (archiv) -1;
+        seek(archiv,I);
+        Write(archiv,estancia);
+        WriteLn('el registro ha sido modificado');
+        end
+      else
+        WriteLn('el registro fue dado de baja');
+      end;
 
 end;
 
-procedure consultar(var archiv:archivo);
-var 
-estancia:T_estancia;
-N:String;
-i:Integer;
-begin
-  WriteLn('que estancia desea consultar? ingrese su nombre');
-  Read(N);
-  i:= Posicion(N,archiv);
-  if i= -1 then
-    WriteLn('no existe la estancia que esta buscando')
-    else
-    seek(archiv,i);
-    read(archiv,estancia);
-    mostrarEstancia(estancia,archiv);
-end;
+// procedure consultar(var archiv:archivo);
+// var 
+// estancia:T_estancia;
+// N:String;
+// i:Integer;
+// begin
+//   WriteLn('que estancia desea consultar? ingrese su nombre');
+//   Read(N);
+//   i:= Posicion(N,archiv);
+//   if i= -1 then
+//     WriteLn('no existe la estancia que esta buscando')
+//     else
+//     seek(archiv,i);
+//     read(archiv,estancia);
+//     mostrarEstancia(estancia,archiv);
+// end;
 
 
 
@@ -290,9 +306,9 @@ begin
   Reset(archivo1);
   //Seek(archivo1,0);
   // read(archivo1,estancia);
-  incializarRegistro(estancia, contadorEstancias);
+  incializarRegistro(estancia);
   altaEstancia(estancia,archivo1);
-  mostrarEstancia(estancia,archivo1);
+  
   
   //PRUEBA BAJA
   //Qué estancia se dará de baja?
@@ -303,9 +319,11 @@ begin
   //Muesta la posición (PRUEBA) (por ahora sólo me devuelve -1)
   WriteLn('Posición de la estancia buscada: ', posicionEstancia);
   //SÓLO SI la estancia fue encontada, se llama al procedimiento baja
-  if (posicionEstancia <> -1) then
+  if (posicionEstancia > -1) then
     baja(archivo1, estancia, posicionEstancia);
 
+  modificarEstancia(archivo1);
+  ConsultarEstancia(estancia,archivo1);
 
 
 
