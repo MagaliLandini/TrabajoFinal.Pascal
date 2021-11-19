@@ -11,7 +11,7 @@ T_estancia=record
     numeroContacto:Integer;
     email:String;
     caracteristicas:String;
-    tienePiscina:String;
+    tienePiscina:Boolean;
     capacidadMaxima:Integer;
     alta:Boolean;
 end;
@@ -64,14 +64,15 @@ begin
         numeroContacto:=0;
         email:='';
         caracteristicas:='';
-        tienePiscina:='';
+        tienePiscina:=false;
         capacidadMaxima:=0;
         alta:=true;
         
       end;
 end;
 procedure CargarRegistroEstancia (var registroE:T_estancia);
-
+var 
+  aux : string;
 begin
 
   with registroE do
@@ -92,8 +93,9 @@ begin
       ReadLn(email);
       WriteLn('caracterice la estancia');
       ReadLn(caracteristicas);
-      WriteLn('¿tiene piscina?');
-      ReadLn(tienePiscina);
+      WriteLn('¿tiene piscina? s/n');
+      ReadLn(aux);
+        if(aux = 's') then tienePiscina := true;        //Si se ingresa 's', tienePiscina es true. Si se ingresa algo distinto a 's', no pasa nada y conserva el valor false con el que se inicializó
       WriteLn('capacidad maxima de la estancia');
       ReadLn(capacidadMaxima);
       alta := true;            
@@ -172,7 +174,6 @@ WriteLn('¿desea cargar una estancia?');
 ReadLn(opcion);
 while (opcion <> 'n') do
   begin
-  //contadorEstancias := contadorEstancias + 1 el filesize cumple esta funcion
   WriteLn('ingrese los datos de la estancia');
   CargarRegistroEstancia(registroE);
   i:=Posicion(registroE.nombreEstancia,archiv);
