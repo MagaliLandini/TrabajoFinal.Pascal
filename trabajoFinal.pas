@@ -275,22 +275,22 @@ begin
 
 end;
 
-// procedure consultar(var archiv:archivo);
-// var 
-// estancia:T_estancia;
-// N:String;
-// i:Integer;
-// begin
-//   WriteLn('que estancia desea consultar? ingrese su nombre');
-//   Read(N);
-//   i:= Posicion(N,archiv);
-//   if i= -1 then
-//     WriteLn('no existe la estancia que esta buscando')
-//     else
-//     seek(archiv,i);
-//     read(archiv,estancia);
-//     mostrarEstancia(estancia,archiv);
-// end;
+ procedure consultar(var archiv:archivo);
+ var 
+ estancia:T_estancia;
+ N:String;
+ i:Integer;
+ begin
+   WriteLn('que estancia desea consultar? ingrese su nombre');
+   Read(N);
+   i:= Posicion(N,archiv);
+   if i= -1 then
+     WriteLn('no existe la estancia que esta buscando')
+     else
+     seek(archiv,i);
+     read(archiv,estancia);
+     mostrarEstancia(estancia,archiv);
+ end;
 
 
 
@@ -299,12 +299,42 @@ end;
 var 
 estancia:T_estancia; 
 archivo1:archivo;
-contadorEstancias, posicionEstancia : integer;
+contadorEstancias, posicionEstancia, opcionMenu : integer;
 nombreEst:String;
 
 begin
   Assign(archivo1,'./archivo1.dat');
   Reset(archivo1);
+
+  //MENÚ
+  WriteLn('----- Sistema de Gestión de Estancias Turísiticas -----');
+  WriteLn('¿Qué acción desea realizar?');
+  Writeln('');
+  WriteLn('ESTANCIAS: ');
+  WriteLn('1. Consultar una estancia');
+  WriteLn('2. Dar de alta una estancia');
+  WriteLn('3. Dar de baja una estancia');
+  WriteLn('4. Modificar una estancia');
+  Writeln('');
+  WriteLn('PROVINCIAS: ');
+  //opciones ABMC provincias
+  Writeln('');
+  WriteLn('LISTADOS: ');
+  //opciones listados de estancias y de provincias
+  Writeln('');
+  WriteLn('0. Salir ');
+  ReadLn(opcionMenu);
+
+  case(opcionMenu) of
+    0: close(archivo1);
+    1: consultar(archivo1);
+    2: altaEstancia(estancia,archivo1);
+    3: baja(archivo1, estancia, posicionEstancia);
+    4: modificarEstancia(archivo1);
+    else WriteLn('No se reconoce la operación ingresada');
+    end;
+
+
   //Seek(archivo1,0);
   // read(archivo1,estancia);
   incializarRegistro(estancia);
