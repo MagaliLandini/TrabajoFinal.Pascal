@@ -1,5 +1,5 @@
 Program trabajofinal;
-
+const n=1000;
 type
 T_estancia=record
     ID_Estancia : integer;
@@ -7,7 +7,7 @@ T_estancia=record
     apellNomDueno:String;
     Dni:Integer;
     domicilio:String;
-    cod_provincia: string;
+    cod_provincia: Integer;
     numeroContacto:Integer;
     email:String;
     caracteristicas:String;
@@ -15,8 +15,15 @@ T_estancia=record
     capacidadMaxima:Integer;
     alta:Boolean;
 end;
+T_provincias= record
+  Denominacion:String;
+  cod_provincia: Integer;
+  Telefono:Integer
+  end;
 
 archivo=file of T_estancia;
+archivo_Provincia= file of T_provincias;
+T_vector= array [1..n] of T_estancia;
 // procedure incializarRegistroDomicilio(registro:T_domicilio);
 // begin
 //       with registro do 
@@ -60,7 +67,7 @@ begin
         apellNomDueno:=' ';
         Dni:=0;
         domicilio:= ' '; 
-        cod_provincia:= ' ';
+        cod_provincia:= 0;
         numeroContacto:=0;
         email:='';
         caracteristicas:='';
@@ -101,8 +108,30 @@ begin
       alta := true;            
     end;
 end;
+procedure incializarRegistroProvincia(var registroP:T_provincias);
+begin
+      with registroP do 
+      begin
+      Denominacion:=' ';
+      cod_provincia:= 0;
+      Telefono:=0;
+        
+      end;
+end;
+procedure CargarRegistroProvincia (var registroP:T_provincias);
+begin
 
-procedure mostrarRegistro (estanciaE : T_estancia);
+  with registroP do
+    begin
+     WriteLn('ingrese el nombre de la provincia');
+     ReadLn(Denominacion);
+     WriteLn('ingrese el codigo de la provincia');
+     ReadLn(cod_provincia);
+     WriteLn('ingrese el telefono del ministerios de turismo');
+     ReadLn(telefono);
+    end;
+end;
+procedure mostrarEstancia (estanciaE : T_estancia);
 begin
   with estanciaE do
     begin
@@ -113,9 +142,9 @@ begin
       WriteLn('el DNI');
       writeln(Dni);
       WriteLn('domicilio');
+      writeln(domicilio);
       Writeln('Código de provincia:');
       WriteLn(cod_provincia);
-      writeln(domicilio);
       WriteLn('numero de contacto');
       writeln(numeroContacto);
       WriteLn('email');
@@ -126,8 +155,6 @@ begin
       writeln(tienePiscina);
       WriteLn('capacidad maxima de la estancia');
       writeln(capacidadMaxima);
-      WriteLn('alta');
-      writeln(alta);
     end;
 end;
 
@@ -165,6 +192,65 @@ WriteLn('posicion archivo ',posicionArchivo );
   else
   Posicion:=-1;
 end;
+function PosicionProvincia( N:String; var archivoP:archivo_Provincia):Integer;
+var 
+registroP:T_provincias;
+encontrado:Boolean;
+posicionArchivo : integer;
+
+begin
+  //Inicialización de variables
+  encontrado:=false;
+  posicionArchivo := 0;
+  seek(archivoP, posicionArchivo);
+  //Ciclo mientras NO sea el final del archivo y NO se haya encontrado
+  while not Eof(archivoP) and not encontrado do 
+  begin
+    //Posicionamiento en el archivo
+    seek(archivoP, posicionArchivo);
+    
+    //Lectura de la variable
+    read(archivoP,registroP);
+
+    //Comprobación: el nombreEstancia es igual al nombre ingresado?
+    if registroP.Denominacion = N then
+      encontrado:= true
+    else 
+      //Actualización para la próxima iteración
+      posicionArchivo := posicionArchivo + 1;
+  end;
+WriteLn('encontrado ', encontrado );
+WriteLn('posicion archivo ',posicionArchivo );
+  if encontrado then 
+  PosicionProvincia:=posicionArchivo
+  else
+  PosicionProvincia:=-1;
+end;
+procedure altaProvincia (var registroP:T_provincias; var archivoP: archivo_Provincia);
+var opcion:char;
+i:Integer;
+begin
+WriteLn('¿desea cargar una provincia?');
+ReadLn(opcion);
+while (opcion <> 'n') do
+  begin
+  WriteLn('ingrese los datos de la provincia');
+  CargarRegistroProvincia(registroP);
+  i:=PosicionProvincia(registroP.Denominacion,archivoP);
+  if i= -1 then
+  begin
+    i:= FileSize(archivoP); // nos da el tamaño del archivo
+    seek (archivoP,i);
+    Write(archivoP,registroP)
+  end
+  else 
+  WriteLn('ya existe una provincia con ese nombre. Los datos no fueron cargados');
+   
+  WriteLn('¿desea cargar otra provincia?');
+  ReadLn(opcion);
+    end;
+
+end;
 
 procedure altaEstancia (var registroE:T_estancia; var archiv: archivo);
 var opcion:char;
@@ -182,7 +268,9 @@ while (opcion <> 'n') do
     i:= FileSize(archiv); // nos da el tamaño del archivo
     seek (archiv,i);
     Write(archiv,registroE)
-  end;
+  end
+  else
+  WriteLn('ya existe una estancia con ese nombres. Los datos no fueron cargados');
   WriteLn('¿desea cargar una estancia?');
   ReadLn(opcion);
     end;
@@ -233,18 +321,10 @@ i:= Posicion(n,archiv);
   read(archiv,estanciaE);
   writeln('Estancia alta: ', estanciaE.alta);
   if (estanciaE.alta) then
-  mostrarRegistro(estanciaE)
+  mostrarEstancia(estanciaE)
     else
      WriteLn('la estancia no existe');
 end;
-
-
-
-procedure listado (var registroE:T_estancia);
-begin
-  WriteLn(registroE.nombreEstancia);
-end;
-
 
 procedure modificarEstancia(var archiv:archivo);
 var E:String;
@@ -289,22 +369,76 @@ end;
      else
      seek(archiv,i);
      read(archiv,estancia);
-     mostrarEstancia(estancia,archiv);
+     mostrarEstancia(estancia);
  end;
 
+// Procedimientos para ordenar los archivos
 
+procedure LeerArchivo(var archiv:archivo; var v:T_vector; var lim:integer);
+begin
+  lim:=0;
+  repeat 
+  lim:= lim+1;
+  Read(archiv,v[lim]);
+  until Eof(archiv);
+end;
+procedure burbuja( var v:T_vector; lim: Integer);
+    var i,j: Integer;
+    aux:T_estancia;
+begin
+  for i := 1 to lim - 1 do 
+    begin
+      for j:= 1 to lim -i do 
+        begin
+          if v[j].nombreEstancia > v [j+1].nombreEstancia then 
+            begin
+              aux:= v [j];
+              v[j]:= v [j+1];
+              v[j+1]:= aux;
+            end;
+        end;      
+    end;
+end;
+procedure ModificarArchivo(var archiv:archivo; var v:T_vector; var lim:Integer);  //modifica el archivo guardando los registros ordenados
+var i:Integer;
+begin
+  Rewrite(archiv);//sobreescribe el archivo
+  for i:= 1 to lim do 
+  Write(archiv,v[i]);
+end;
+procedure listado (var archiv:archivo);
+var estancia:T_estancia;
+begin
 
-
+reset(archiv);
+ while not Eof(archiv) do
+  begin
+  
+    WriteLn('Registro: ', FilePos(archiv) + 1);
+    Read(archiv,estancia);
+    
+    if estancia.alta then
+      mostrarEstancia(estancia)
+      else
+      WriteLn('el registro esta vacio');
+  end;
+end;
 
 var 
 estancia:T_estancia; 
 archivo1:archivo;
-contadorEstancias, posicionEstancia, opcionMenu : integer;
+archivo_p:archivo_Provincia;
+posicionEstancia, opcionMenu,lim, opcionListados : integer;
 nombreEst:String;
+vectorEstancia:T_vector;
+provincia:T_provincias;
+
 
 begin
   Assign(archivo1,'./archivo1.dat');
+  Assign(archivo_p,'./archivoProv.dat');
   Reset(archivo1);
+  Reset(archivo_p);
 
   //MENÚ
   WriteLn('----- Sistema de Gestión de Estancias Turísiticas -----');
@@ -315,6 +449,8 @@ begin
   WriteLn('2. Dar de alta una estancia');
   WriteLn('3. Dar de baja una estancia');
   WriteLn('4. Modificar una estancia');
+  WriteLn('5. Listar Estancias');
+  WriteLn('6. Dar de alta una provincia');
   Writeln('');
   WriteLn('PROVINCIAS: ');
   //opciones ABMC provincias
@@ -325,38 +461,71 @@ begin
   WriteLn('0. Salir ');
   ReadLn(opcionMenu);
 
-  case(opcionMenu) of
+  case (opcionMenu) of
     0: close(archivo1);
     1: consultar(archivo1);
-    2: altaEstancia(estancia,archivo1);
-    3: baja(archivo1, estancia, posicionEstancia);
+    2: begin
+       incializarRegistro(estancia); 
+       altaEstancia(estancia,archivo1);
+       end;
+    3:  begin
+        WriteLn('ingrese el nombre de la estancia que desea dar de baja: ');
+        Readln(nombreEst); 
+        posicionEstancia := Posicion(nombreEst, archivo1);
+         if (posicionEstancia > -1) then
+          baja(archivo1, estancia, posicionEstancia);
+           // baja(archivo1, estancia, posicionEstancia);
+        end;
     4: modificarEstancia(archivo1);
+    5:  begin 
+         WriteLn('¿Qué acción desea realizar?');
+         WriteLn('1. Listar estancias');
+         WriteLn('2. listado de estancias por provincias');
+         WriteLn('3. estancias que poseen piscinas');
+         ReadLn(opcionListados);
+         case (opcionListados) of
+          1: begin
+              LeerArchivo(archivo1,vectorEstancia,lim);
+              burbuja(vectorEstancia,lim);
+              ModificarArchivo(archivo1,vectorEstancia,lim);
+              listado(archivo1);
+              end;
+            2: WriteLn('listado de provincias');
+            3: WriteLn('poseen piscinas');
+          end;
+          end;
+    6: begin
+        incializarRegistroProvincia(provincia);
+        altaProvincia(provincia,archivo_p);
+      end;
     else WriteLn('No se reconoce la operación ingresada');
     end;
 
-
   //Seek(archivo1,0);
   // read(archivo1,estancia);
-  incializarRegistro(estancia);
-  altaEstancia(estancia,archivo1);
+  // incializarRegistro(estancia);
+  // altaEstancia(estancia,archivo1);
   
   
-  //PRUEBA BAJA
-  //Qué estancia se dará de baja?
-  WriteLn('ingrese el nombre de la estancia que desea dar de baja: ');
-  Readln(nombreEst);
-  //Posición de la estancia a dar de baja
-  posicionEstancia := Posicion(nombreEst, archivo1);
-  //Muesta la posición (PRUEBA) (por ahora sólo me devuelve -1)
-  WriteLn('Posición de la estancia buscada: ', posicionEstancia);
-  //SÓLO SI la estancia fue encontada, se llama al procedimiento baja
-  if (posicionEstancia > -1) then
-    baja(archivo1, estancia, posicionEstancia);
+  // //PRUEBA BAJA
+  // //Qué estancia se dará de baja?
+  // WriteLn('ingrese el nombre de la estancia que desea dar de baja: ');
+  // Readln(nombreEst);
+  // //Posición de la estancia a dar de baja
+  // posicionEstancia := Posicion(nombreEst, archivo1);
+  // //Muesta la posición (PRUEBA) (por ahora sólo me devuelve -1)
+  // WriteLn('Posición de la estancia buscada: ', posicionEstancia);
+  // //SÓLO SI la estancia fue encontada, se llama al procedimiento baja
+  // if (posicionEstancia > -1) then
+  //   baja(archivo1, estancia, posicionEstancia);
 
-  modificarEstancia(archivo1);
-  ConsultarEstancia(estancia,archivo1);
+  // modificarEstancia(archivo1);
+  // ConsultarEstancia(estancia,archivo1);
 
-
+  // LeerArchivo(archivo1,vectorEstancia,lim);
+  // burbuja(vectorEstancia,lim);
+  // ModificarArchivo(archivo1,vectorEstancia,lim);
+  
 
   // Write(archivo1,estancia);
  
@@ -364,4 +533,5 @@ begin
   // write(Read(archivo1,estancia));
  //listado(archivo1,estancia);
    close(archivo1);
+   close(archivo_p);
 end.
