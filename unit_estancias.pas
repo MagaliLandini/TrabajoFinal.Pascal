@@ -47,6 +47,7 @@ procedure LeerArchivo(var archiv:archivo; var v:T_vector; var lim:integer);
 procedure ModificarArchivo(var archiv:archivo; var v:T_vector; var lim:Integer);  //modifica el archivo guardando los registros ordenados
 procedure listado (var archiv:archivo);
 procedure burbuja( var v:T_vector; lim: Integer);
+procedure listadoPiscinas(var archiv : archivo);
 
 
 
@@ -425,6 +426,23 @@ reset(archiv);
       mostrarEstancia(estancia)
       else
       WriteLn('el registro esta vacio');
+  end;
+end;
+
+procedure listadoPiscinas( var archiv : archivo);
+var estancia:T_estancia;
+begin
+
+reset(archiv);
+ while not Eof(archiv) do
+  begin
+    WriteLn('');
+    WriteLn('Listado de estancias que poseen piscina');
+    WriteLn('Registro: ', FilePos(archiv) + 1);
+    Read(archiv,estancia);
+    
+    if estancia.alta  AND estancia.tienePiscina then
+      mostrarEstancia(estancia)
   end;
 end;
 

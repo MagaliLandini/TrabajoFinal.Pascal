@@ -68,7 +68,12 @@ begin
               listado(archivo1);
               end;
             2: WriteLn('listado de provincias');
-            3: WriteLn('poseen piscinas');
+            3: begin
+                LeerArchivo(archivo1, vectorEstancia, lim);
+                burbuja(vectorEstancia, lim);
+                listadoPiscinas(archivo1);
+                end;
+
           end;
           end;
     6: begin
