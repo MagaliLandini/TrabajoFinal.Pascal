@@ -1,6 +1,8 @@
+
 unit unit_estancias;
- 
+
 interface
+Uses Crt;
 const n=1000;
 
 Type
@@ -41,9 +43,12 @@ procedure modificarEstancia(var archiv:archivo);
 procedure consultar(var archiv:archivo);
 procedure incializarRegistroProvincia(var registroP:T_provincias);
 procedure CargarRegistroProvincia (var registroP:T_provincias);
+procedure MostrarProvincias (var registroP:T_provincias);
+procedure DatosProvincia (var archivoP:archivo_Provincia; var RegistroP:T_provincias);
 function PosicionProvincia( N:String; var archivoP:archivo_Provincia):Integer;
 procedure altaProvincia (var registroP:T_provincias; var archivoP: archivo_Provincia);
 procedure LeerArchivo(var archiv:archivo; var v:T_vector; var lim:integer);
+procedure ListadoProvincias (var archivoP:archivo_Provincia;var archivoE:archivo);
 procedure ModificarArchivo(var archiv:archivo; var v:T_vector; var lim:Integer);  //modifica el archivo guardando los registros ordenados
 procedure listado (var archiv:archivo);
 procedure burbuja( var v:T_vector; lim: Integer);
@@ -81,26 +86,26 @@ begin
 
   with registroE do
     begin
-      WriteLn('ingrese el nombre de la estancia');
+      WriteLn('Ingrese el nombre de la estancia.');
       ReadLn(nombreEstancia);
-      WriteLn('ingrese el apellido y nombre del dueño ');
+      WriteLn('Ingrese el apellido y nombre del duenio.');
       ReadLn(apellNomDueno);
-      WriteLn('ingrese el DNI');
+      WriteLn('Ingrese el DNI.');
       ReadLn(Dni);
-      WriteLn('ingrese su domicilio');
+      WriteLn('Ingrese su domicilio.');
       ReadLn(domicilio);
-      WriteLn('Ingrese el código de provincia');
-      ReadLn(cod_provincia);
-      WriteLn('ingrese un numero de contacto');
+      WriteLn('Ingrese el codigo de la provincia.');
+      ReadLn(cod_provincia);  
+      WriteLn('Ingrese un numero de contacto.');
       ReadLn(numeroContacto);
-      WriteLn('ingrese su email');
+      WriteLn('Ingrese su email.');
       ReadLn(email);
-      WriteLn('caracterice la estancia');
+      WriteLn('Caracterice a la estancia.');
       ReadLn(caracteristicas);
-      WriteLn('¿tiene piscina? s/n');
+      WriteLn('¿Tiene piscina? s/n');
       ReadLn(aux);
         if(aux = 's') then tienePiscina := true;        //Si se ingresa 's', tienePiscina es true. Si se ingresa algo distinto a 's', no pasa nada y conserva el valor false con el que se inicializó
-      WriteLn('capacidad maxima de la estancia');
+      WriteLn('¿Cual es la capacidad de la estancia?');
       ReadLn(capacidadMaxima);
       alta := true;            
     end;
@@ -110,26 +115,20 @@ procedure mostrarEstancia (estanciaE : T_estancia);
 begin
   with estanciaE do
     begin
-      WriteLn('nombre de la estancia');
-      writeln(nombreEstancia);
-      WriteLn('apellido y nombre del dueño ');
-      writeln(apellNomDueno);
-      WriteLn('el DNI');
-      writeln(Dni);
-      WriteLn('domicilio');
-      writeln(domicilio);
-      Writeln('Código de provincia:');
-      WriteLn(cod_provincia);
-      WriteLn('numero de contacto');
-      writeln(numeroContacto);
-      WriteLn('email');
-      writeln(email);
-      WriteLn('características de la estancia');
-      writeln(caracteristicas);
-      WriteLn('¿tiene piscina?');
-      writeln(tienePiscina);
-      WriteLn('capacidad maxima de la estancia');
-      writeln(capacidadMaxima);
+      WriteLn('Nombre de la estancia: ', nombreEstancia);
+      WriteLn('Apellido y nombre del duenio: ', apellNomDueno);
+      WriteLn('DNI: ', Dni);
+      WriteLn('Domicilio: ', domicilio);
+      Writeln('Codigo de provincia: ',cod_provincia );
+      WriteLn('Numero de contacto: ', numeroContacto);
+      WriteLn('Email: ', email);
+      WriteLn('Caracteristicas de la estancia: ', caracteristicas);
+      if (tienePiscina=true) then
+        WriteLn('tiene piscina?: si')
+        else
+        WriteLn('Tiene Piscina?: No');
+      WriteLn('Capacidad maxima de la estancia: ', capacidadMaxima);
+      
     end;
 end;
 
@@ -160,8 +159,8 @@ begin
       //Actualización para la próxima iteración
       posicionArchivo := posicionArchivo + 1;
   end;
-WriteLn('encontrado ', encontrado );
-WriteLn('posicion archivo ',posicionArchivo );
+// WriteLn('encontrado ', encontrado );
+// WriteLn('posicion archivo ',posicionArchivo );
   if encontrado then 
   Posicion:=posicionArchivo
   else
@@ -171,23 +170,27 @@ end;
 procedure altaEstancia (var registroE:T_estancia; var archiv: archivo);
 var opcion:char;
 i:Integer;
+
 begin
-WriteLn('¿desea cargar una estancia?');
+WriteLn('Desea cargar una estancia?');
 ReadLn(opcion);
 while (opcion <> 'n') do
   begin
-  WriteLn('ingrese los datos de la estancia');
+  ClrScr;
+  GotoXY(3,whereY());
+  WriteLn('Ingrese los datos de la estancia.');
+  WriteLn('');
   CargarRegistroEstancia(registroE);
   i:=Posicion(registroE.nombreEstancia,archiv);
   if i= -1 then
   begin
     i:= FileSize(archiv); // nos da el tamaño del archivo
     seek (archiv,i);
-    Write(archiv,registroE)
+    Write(archiv,registroE);  
   end
   else
-  WriteLn('ya existe una estancia con ese nombres. Los datos no fueron cargados');
-  WriteLn('¿desea cargar una estancia?');
+  WriteLn('Ya existe una estancia con ese nombre. Los datos no fueron cargados');
+  WriteLn('Desea cargar una estancia?');
   ReadLn(opcion);
     end;
 
@@ -198,8 +201,9 @@ var
 opcion : char;
 begin
 
-WriteLn('¿desea dar de baja una estancia?');
+WriteLn('Desea dar de baja una estancia?');
 ReadLn(opcion);
+ClrScr;
   if (Upcase(opcion) <> 'N') then
   begin
    
@@ -221,7 +225,7 @@ ReadLn(opcion);
     end
   else
   //Si la estancia ya estaba inactiva, avisa al usuario
-  WriteLn('La estancia ingresada ya había sido dada de baja');
+  WriteLn('La estancia ingresada ya habia sido dada de baja');
   end;
 end;
 
@@ -230,16 +234,21 @@ procedure ConsultarEstancia (var estanciaE: T_estancia; var archiv:archivo);
 var i:integer;
  n:String;
 begin
-WriteLn('ingrese el nombre de la estancia que desea consultar');
+WriteLn('Ingrese el nombre de la estancia que desea consultar.');
 readln(n);
+ClrScr;
 i:= Posicion(n,archiv);
+if  (i>-1) then
+  begin
   seek(archiv,i);
   read(archiv,estanciaE);
-  writeln('Estancia alta: ', estanciaE.alta);
   if (estanciaE.alta) then
   mostrarEstancia(estanciaE)
     else
-     WriteLn('la estancia no existe');
+     WriteLn('La estancia no existe.');
+  end
+  else
+   WriteLn('La estancia no existe.');
 end;
 
 procedure modificarEstancia(var archiv:archivo);
@@ -247,26 +256,27 @@ var E:String;
 I:integer;
 estancia:T_estancia;
 begin
-  WriteLn('instroduzca el nombre de la estancia que desea modificar');
+  WriteLn('Introduzca el nombre de la estancia que desea modificar.');
   ReadLn(E);
+  ClrScr;
   I:= Posicion (E,archiv);
   if I=-1 then
-    WriteLn('no esxiste la estancia buscada')
+    WriteLn('No existe la estancia buscada.')
     else
     begin
       seek(archiv,I);
       Read(archiv,estancia);
       if estancia.alta then // aca se utiliza un boleano para modificarlo, podemos ver si usamos el mismo o si generamos otro.
         begin
-        WriteLn('introduzca nuevos datos de la estancia');
+        WriteLn('Introduzca nuevos datos de la estancia.');
         CargarRegistroEstancia(estancia);
         I:= FilePos (archiv) -1;
         seek(archiv,I);
         Write(archiv,estancia);
-        WriteLn('el registro ha sido modificado');
+        WriteLn('El registro ha sido modificado.');
         end
       else
-        WriteLn('el registro fue dado de baja');
+        WriteLn('El registro fue dado de baja.');
       end;
 
 end;
@@ -278,11 +288,12 @@ end;
  N:String;
  i:Integer;
  begin
-   WriteLn('que estancia desea consultar? ingrese su nombre');
+   WriteLn('Que estancia desea consultar?');
    Read(N);
+   ClrScr;
    i:= Posicion(N,archiv);
    if i= -1 then
-     WriteLn('no existe la estancia que esta buscando')
+     WriteLn('No existe la estancia que esta buscando.')
      else
      seek(archiv,i);
      read(archiv,estancia);
@@ -305,16 +316,43 @@ begin
 
   with registroP do
     begin
-     WriteLn('ingrese el nombre de la provincia');
+     WriteLn('Ingrese el nombre de la provincia.');
      ReadLn(Denominacion);
-     WriteLn('ingrese el codigo de la provincia');
-     ReadLn(cod_provincia);
-     WriteLn('ingrese el telefono del ministerios de turismo');
+     WriteLn('Ingrese el telefono del ministerios de turismo.');
      ReadLn(telefono);
     end;
 end;
 
+procedure MostrarProvincias (var registroP:T_provincias);
+begin
+  with registroP do
+    begin
+    WriteLn('Provincia: ',Denominacion );
+    WriteLn('codigo de la provincia: ',cod_provincia);
+    WriteLn('telefono del ministerio de turismo: ',telefono);
+    end;
+end;
 
+procedure DatosProvincia (var archivoP:archivo_Provincia; var RegistroP:T_provincias);
+var provincia:String;
+posProvincia:Integer;
+begin
+  posProvincia:=0;
+  WriteLn ('Los datos de que provincia desea obtener?');
+  ReadLn(provincia);
+  ClrScr;
+  posProvincia:= PosicionProvincia(provincia,archivoP);
+  if posProvincia<= 0 then
+    begin
+    Seek(archivoP,posProvincia);
+    Read(archivoP,RegistroP);
+    MostrarProvincias(RegistroP);
+    end
+  else
+  WriteLn('La provincia no se encuentra cargada en el sistema.');
+
+
+end;
 function PosicionProvincia( N:String; var archivoP:archivo_Provincia):Integer;
 var 
 registroP:T_provincias;
@@ -342,8 +380,8 @@ begin
       //Actualización para la próxima iteración
       posicionArchivo := posicionArchivo + 1;
   end;
-WriteLn('encontrado ', encontrado );
-WriteLn('posicion archivo ',posicionArchivo );
+// WriteLn('encontrado ', encontrado );
+// WriteLn('posicion archivo ',posicionArchivo );
   if encontrado then 
   PosicionProvincia:=posicionArchivo
   else
@@ -354,29 +392,65 @@ procedure altaProvincia (var registroP:T_provincias; var archivoP: archivo_Provi
 var opcion:char;
 i:Integer;
 begin
-WriteLn('¿desea cargar una provincia?');
+WriteLn('Desea cargar una provincia?');
 ReadLn(opcion);
 while (opcion <> 'n') do
   begin
-  WriteLn('ingrese los datos de la provincia');
+  ClrScr;
+  WriteLn('Ingrese los datos de la provincia.');
   CargarRegistroProvincia(registroP);
   i:=PosicionProvincia(registroP.Denominacion,archivoP);
   if i= -1 then
   begin
     i:= FileSize(archivoP); // nos da el tamaño del archivo
+    registroP.cod_provincia:= i;
     seek (archivoP,i);
     Write(archivoP,registroP)
   end
   else 
-  WriteLn('ya existe una provincia con ese nombre. Los datos no fueron cargados');
+  WriteLn('Ya existe una provincia con ese nombre. Los datos no fueron cargados.');
    
-  WriteLn('¿desea cargar otra provincia?');
+  WriteLn('Desea cargar otra provincia?');
   ReadLn(opcion);
     end;
 
 end;
 
-procedure LeerArchivo(var archiv:archivo; var v:T_vector; var lim:integer);
+procedure ListadoProvincias (var archivoP:archivo_Provincia; var archivoE:archivo);
+var estProvincia:String;
+PosProvincia,codigoProvincia,i,listado:Integer;
+registroP:T_provincias;
+registroE:T_estancia;
+begin
+codigoProvincia:=0;
+PosProvincia:=0;
+listado:=0;
+  WriteLn('Las estancias de que provincia desea buscar?');
+  ReadLn(EstProvincia);
+  ClrScr;
+  PosProvincia:= posicionProvincia(estProvincia,archivoP);
+  if (PosProvincia >= 0) then
+  begin
+  Seek(archivoP,PosProvincia);
+  Read(archivoP,registroP);
+  codigoProvincia:= registroP.cod_provincia;
+  
+  for i:= 0 to FileSize(archivoE)-1 do
+    begin
+    Seek(archivoE,i);
+    Read(archivoE,registroE);
+    if (codigoProvincia = registroE.cod_provincia) then
+    mostrarEstancia(registroE);
+    listado:= listado+1;
+    end;
+  if listado=0 then
+  WriteLn('La provincia ingresada no tiene estancias cargadas en el sistemas.');
+  end
+  else 
+  WriteLn('La provincia no se encuentra en el sistema.');
+
+end;
+procedure LeerArchivo (var archiv:archivo; var v:T_vector; var lim:integer);
 begin
   lim:=0;
   repeat 
@@ -437,7 +511,7 @@ reset(archiv);
  while not Eof(archiv) do
   begin
     WriteLn('');
-    WriteLn('Listado de estancias que poseen piscina');
+    WriteLn('Listado de estancias que poseen piscina.');
     WriteLn('Registro: ', FilePos(archiv) + 1);
     Read(archiv,estancia);
     
