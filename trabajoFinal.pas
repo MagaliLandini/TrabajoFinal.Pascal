@@ -162,7 +162,7 @@ begin
         WriteLn('Que accion desea realizar?');
         Writeln('');
         WriteLn('1.Dar de alta una provincia');
-        WriteLn('Consultar los datos de una prvincia');
+        WriteLn('2.Consultar los datos de una prvincia');
         WriteLn('3.volver al menu principal');
         ReadLn(opcionListados);
         ClrScr;
