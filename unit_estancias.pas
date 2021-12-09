@@ -10,10 +10,10 @@ T_estancia=record
     ID_Estancia : integer;
     nombreEstancia:string;
     apellNomDueno:String;
-    Dni:Integer;
+    Dni:String[10];
     domicilio:String;
     cod_provincia: Integer;
-    numeroContacto:Integer;
+    numeroContacto:String[15];
     email:String;
     caracteristicas:String;
     tienePiscina:Boolean;
@@ -24,7 +24,7 @@ end;
 T_provincias= record
   Denominacion:String;
   cod_provincia: Integer;
-  Telefono:Integer
+  Telefono:String[15];
   end;
 
 archivo_Provincia= file of T_provincias;
@@ -66,12 +66,12 @@ begin
         //ID_Estancia:= contadorEstancias;
         nombreEstancia:=' ';
         apellNomDueno:=' ';
-        Dni:=0;
+        Dni:=' ';
         domicilio:= ' '; 
         cod_provincia:= 0;
-        numeroContacto:=0;
-        email:='';
-        caracteristicas:='';
+        numeroContacto:=' ';
+        email:=' ';
+        caracteristicas:=' ';
         tienePiscina:=false;
         capacidadMaxima:=0;
         alta:=true;
@@ -230,7 +230,7 @@ ClrScr;
 end;
 
 
-procedure ConsultarEstancia (var estanciaE: T_estancia; var archiv:archivo);
+procedure ConsultarEstancia ( estanciaE: T_estancia; var archiv:archivo);
 var i:integer;
  n:String;
 begin
@@ -306,7 +306,7 @@ begin
       begin
       Denominacion:=' ';
       cod_provincia:= 0;
-      Telefono:=0;
+      Telefono:=' ';
         
       end;
 end;
@@ -342,7 +342,7 @@ begin
   ReadLn(provincia);
   ClrScr;
   posProvincia:= PosicionProvincia(provincia,archivoP);
-  if posProvincia<= 0 then
+  if posProvincia>= 0 then
     begin
     Seek(archivoP,posProvincia);
     Read(archivoP,RegistroP);
@@ -392,12 +392,17 @@ procedure altaProvincia (var registroP:T_provincias; var archivoP: archivo_Provi
 var opcion:char;
 i:Integer;
 begin
-WriteLn('Desea cargar una provincia?');
+WriteLn('Desea cargar una provincia? s/n');
 ReadLn(opcion);
 while (opcion <> 'n') do
   begin
   ClrScr;
+  TextColor(0);
+  TextBackground(7);
   WriteLn('Ingrese los datos de la provincia.');
+  WriteLn('');
+  TextBackground(0);
+  TextColor(7);
   CargarRegistroProvincia(registroP);
   i:=PosicionProvincia(registroP.Denominacion,archivoP);
   if i= -1 then
@@ -405,8 +410,10 @@ while (opcion <> 'n') do
     i:= FileSize(archivoP); // nos da el tamaño del archivo
     registroP.cod_provincia:= i;
     seek (archivoP,i);
-    Write(archivoP,registroP)
+    Write(archivoP,registroP);
+    ClrScr;
   end
+  
   else 
   WriteLn('Ya existe una provincia con ese nombre. Los datos no fueron cargados.');
    
@@ -427,7 +434,6 @@ PosProvincia:=0;
 listado:=0;
   WriteLn('Las estancias de que provincia desea buscar?');
   ReadLn(EstProvincia);
-  ClrScr;
   PosProvincia:= posicionProvincia(estProvincia,archivoP);
   if (PosProvincia >= 0) then
   begin
@@ -440,8 +446,11 @@ listado:=0;
     Seek(archivoE,i);
     Read(archivoE,registroE);
     if (codigoProvincia = registroE.cod_provincia) then
+    begin
     mostrarEstancia(registroE);
+    ReadLn();
     listado:= listado+1;
+    end;
     end;
   if listado=0 then
   WriteLn('La provincia ingresada no tiene estancias cargadas en el sistemas.');
@@ -482,7 +491,8 @@ var i:Integer;
 begin
   Rewrite(archiv);//sobreescribe el archivo
   for i:= 1 to lim do 
-  Write(archiv,v[i]);
+    Write(archiv,v[i]);
+  close(archiv);
 end;
 
 procedure listado (var archiv:archivo);
@@ -490,14 +500,18 @@ var estancia:T_estancia;
 begin
 
 reset(archiv);
+seek(archiv,0);
  while not Eof(archiv) do
   begin
-  
-    WriteLn('Registro: ', FilePos(archiv) + 1);
+      
     Read(archiv,estancia);
-    
+    TextBackground(0);
+    TextColor(7);
     if estancia.alta then
-      mostrarEstancia(estancia)
+      begin
+      readLn();
+      mostrarEstancia(estancia);
+      end
       else
       WriteLn('el registro esta vacio');
   end;
@@ -508,16 +522,28 @@ var estancia:T_estancia;
 begin
 
 reset(archiv);
+ TextColor(0);
+ TextBackground(7);
+ WriteLn('');
+ WriteLn('Listado de estancias que poseen piscina.');
+ TextBackground(0);
+ TextColor(7);
  while not Eof(archiv) do
   begin
-    WriteLn('');
-    WriteLn('Listado de estancias que poseen piscina.');
-    WriteLn('Registro: ', FilePos(archiv) + 1);
-    Read(archiv,estancia);
+       Read(archiv,estancia);
     
-    if estancia.alta  AND estancia.tienePiscina then
-      mostrarEstancia(estancia)
-  end;
+       if estancia.alta=true  AND estancia.tienePiscina = true then
+          begin
+          //WriteLn('Registro: ', FilePos(archiv));
+          mostrarEstancia(estancia);
+          ReadLn();
+        end;
+     
+      
+   
+  end
+   
+       
 end;
 
 Begin

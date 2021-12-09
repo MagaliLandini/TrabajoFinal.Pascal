@@ -10,12 +10,13 @@ vectorEstancia:T_vector;
 provincia:T_provincias;
 
 
+
 begin
   Assign(archivo1,'./archivo1.dat');
   Assign(archivo_p,'./archivoProv.dat');
   Reset(archivo1);
   Reset(archivo_p);
-
+ 
   //MENÚ
   repeat
   ClrScr;
@@ -69,6 +70,7 @@ begin
        altaEstancia(estancia,archivo1);
        GotoXY(WhereX(),WhereY()+5);
        TextColor(11);
+       
        WriteLn('Presione una tecla para continuar.');
        ReadKey;
       end;
@@ -98,14 +100,16 @@ begin
          TextColor(7);
          modificarEstancia(archivo1);
          GotoXY(WhereX(),WhereY()+5);
-        TextColor(11);
+         TextColor(11);
          WriteLn('Presione una tecla para continuar.');
-         ReadKey;end;
+         ReadKey;
+         end;
     5:  begin 
-    repeat
+     repeat
+         ClrScr;
          GotoXY(20,whereY());
          TextColor(0);
-         TextBackground(7);
+         TextBackground(7);   
          WriteLn('----- Sistema de Gestion de Estancias Turisiticas -----');
          TextBackground(0);
          TextColor(7);
@@ -118,28 +122,33 @@ begin
          WriteLn('3. Estancias que poseen piscinas.');
          WriteLn('4. Volver al menu principal.');
          ReadLn(opcionListados);
-         ClrScr;
+         
          case (opcionListados) of
           1: begin
-              LeerArchivo(archivo1,vectorEstancia,lim);
-              burbuja(vectorEstancia,lim);
-              ModificarArchivo(archivo1,vectorEstancia,lim);
-              listado(archivo1);
-              GotoXY(WhereX(),WhereY()+5);
-              TextColor(11);
-              WriteLn('Presione una tecla para continuar.');
-              ReadKey;
+            
+             LeerArchivo(archivo1,vectorEstancia,lim);
+             burbuja(vectorEstancia,lim);
+             ModificarArchivo(archivo1,vectorEstancia,lim);    
+               
+            
+                Reset(archivo1);
+                listado(archivo1);
+                GotoXY(WhereX(),WhereY()+5);
+                TextColor(11);
+                WriteLn('Presione una tecla para continuar.');
+                ReadKey;
+            
               end;
           2: begin 
              ListadoProvincias(archivo_p,archivo1);
              GotoXY(WhereX(),WhereY()+5);
-            TextColor(11);
+             TextColor(11);
              WriteLn('Presione una tecla para continuar.');
              ReadKey;
              end;
           3: begin
-                LeerArchivo(archivo1, vectorEstancia, lim);
-                burbuja(vectorEstancia, lim);
+                // LeerArchivo(archivo1, vectorEstancia, lim);
+                // burbuja(vectorEstancia, lim);
                 listadoPiscinas(archivo1);
                 GotoXY(WhereX(),WhereY()+5);
                 TextColor(11);
@@ -151,6 +160,7 @@ begin
           end;
     6: begin
         repeat
+        ClrScr;
         GotoXY(20,whereY());
         TextColor(0);
         TextBackground(7);
@@ -158,7 +168,7 @@ begin
         TextBackground(0);
         TextColor(7);
         GotoXY(20,whereY());
-        WriteLn('Seecion provincias');
+        WriteLn('Seccion provincias');
         WriteLn('Que accion desea realizar?');
         Writeln('');
         WriteLn('1.Dar de alta una provincia');
@@ -171,6 +181,7 @@ begin
           incializarRegistroProvincia(provincia);
           altaProvincia(provincia,archivo_p);
           GotoXY(WhereX(),WhereY()+5);
+          TextColor(11);
           WriteLn('Presione una tecla para continuar.');
           ReadKey;
           end;
